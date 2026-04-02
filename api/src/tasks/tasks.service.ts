@@ -1,18 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskRun } from './models/task-run.model';
+import type { TaskRunResponse } from './dto/task-run.response';
 
 @Injectable()
 export class TasksService {
-  private tasks = new Map<number, any>();
+  private tasks = new Map<number, TaskRun>();
 
-  create() {
+  create(): TaskRunResponse {
     const id = Math.floor(Math.random() * 10000);
 
-    const task = {
+    const task: TaskRun = {
       id,
       status: 'running',
-      startedAt: new Date().toISOString(),
+      startedAt: new Date(),
     };
 
     this.tasks.set(id, task);
@@ -23,25 +23,35 @@ export class TasksService {
         this.tasks.set(id, {
           ...existing,
           status: 'completed',
-          completedAt: new Date().toISOString(),
+          completedAt: new Date(),
         });
       }
     }, 3000);
 
-    return task;
+    return this.toResponse(task);
   }
 
-  findAll() {
-    return this.tasks.size > 0 ? Array.from(this.tasks.values()) : [];
+  findAll(): TaskRunResponse[] {
+    return Array.from(this.tasks.values()).map(task => 
+      this.toResponse(task),
+    );
   }
 
-  findOne(id: number) {
+  findOne(id: number): TaskRunResponse {
     const task = this.tasks.get(id);
 
     if (!task) {
       throw new NotFoundException(`Task ${id} not found`);
     }
 
-    return task;    
+    return this.toResponse(task);
+  }
+
+  private toResponse(task: TaskRun): TaskRunResponse {
+    return {
+      ...task,
+      startedAt: task.startedAt.toISOString(),
+      completedAt: task.completedAt?.toISOString(),
+    };
   }
 }
