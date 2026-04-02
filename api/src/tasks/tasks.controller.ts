@@ -7,7 +7,7 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(): TaskRunResponse {
+  create(): Promise<TaskRunResponse> {
     return this.tasksService.create();
   }
 
