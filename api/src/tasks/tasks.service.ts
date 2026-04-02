@@ -4,7 +4,6 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
-
   private tasks = new Map<number, any>();
 
   create() {
@@ -20,7 +19,7 @@ export class TasksService {
 
     setTimeout(() => {
       const existing = this.tasks.get(id);
-      if(existing) {
+      if (existing) {
         this.tasks.set(id, {
           ...existing,
           status: 'completed',
@@ -44,13 +43,5 @@ export class TasksService {
     }
 
     return task;    
-  }
-
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} task`;
   }
 }
