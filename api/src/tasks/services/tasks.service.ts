@@ -1,12 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TaskRun } from './models/task-run.model';
-import type { TaskRunResponse } from './dto/task-run.response';
+import { TaskRun } from '../models/task-run.model';
+import type { TaskRunResponse } from '../dto/task-run.response';
+import { TaskOutputService } from './task-output.service';
 
 @Injectable()
 export class TasksService {
   private tasks = new Map<number, TaskRun>();
 
-  create(): TaskRunResponse {
+  constructor(private readonly taskOutputService: TaskOutputService) {}
+
+  async create(): Promise<TaskRunResponse> {
     const id = Math.floor(Math.random() * 10000);
 
     const task: TaskRun = {
@@ -16,17 +19,20 @@ export class TasksService {
     };
 
     this.tasks.set(id, task);
+    
+    try {
+      const outputPath = await this.taskOutputService.writeTaskOutput(id);
 
-    setTimeout(() => {
-      const existing = this.tasks.get(id);
-      if (existing) {
-        this.tasks.set(id, {
-          ...existing,
-          status: 'completed',
-          completedAt: new Date(),
-        });
-      }
-    }, 3000);
+      task.status = 'completed';
+      task.completedAt = new Date();
+      task.outputPath = outputPath;
+
+      this.tasks.set(id, task);
+    } catch (error) {
+      task.status = 'failed';
+      task.error = error instanceof Error ? error.message : 'Unknown error';
+      this.tasks.set(id, task);
+    }
 
     return this.toResponse(task);
   }
@@ -49,9 +55,12 @@ export class TasksService {
 
   private toResponse(task: TaskRun): TaskRunResponse {
     return {
-      ...task,
+      id: task.id,
+      status: task.status,
       startedAt: task.startedAt.toISOString(),
       completedAt: task.completedAt?.toISOString(),
+      outputPath: task.outputPath,
+      error: task.error,
     };
   }
 }

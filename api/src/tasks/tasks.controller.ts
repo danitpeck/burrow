@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
-import { TasksService } from './tasks.service';
+import { TasksService } from './services/tasks.service';
 import type { TaskRunResponse } from './dto/task-run.response';
 
 @Controller('api/tasks')

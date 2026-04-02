@@ -5,4 +5,6 @@ export class TaskRun {
   status: TaskStatus;
   startedAt: Date;
   completedAt?: Date;
+  outputPath?: string;
+  error?: string;
 }

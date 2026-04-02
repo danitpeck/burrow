@@ -1,6 +1,10 @@
-import { TaskRun } from "../models/task-run.model";
+import { TaskStatus } from "../models/task-run.model";
 
-export type TaskRunResponse = Omit<TaskRun, 'startedAt' | 'completedAt'> & {
+export class TaskRunResponse {
+  id: number;
+  status: TaskStatus;
   startedAt: string;
   completedAt?: string;
+  outputPath?: string;
+  error?: string;
 };
